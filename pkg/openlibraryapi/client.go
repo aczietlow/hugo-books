@@ -4,7 +4,7 @@ import (
 	"net/http"
 	"time"
 
-	"github.com/aczietlow/hugo-book/pkg/bookcache"
+	"github.com/aczietlow/hugo-books/pkg/bookcache"
 )
 
 const baseURL = "https://openlibrary.org"
