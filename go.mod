@@ -1,3 +1,3 @@
 module github.com/aczietlow/hugo-books
 
-go 1.24.10
+go 1.24.9
