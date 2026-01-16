@@ -23,7 +23,7 @@ func NewClient(httpTimeout time.Duration, cacheTTL time.Duration) Client {
 	return Client{
 		httpClient: http.Client{
 			Transport: &Transport{
-				UserAgent: "HugoBooks/0.1 (aczietlow@gmail.com)",
+				UserAgent: "HugoBookgit@github.com:aczietlow/hugo-books.gits/0.1 (aczietlow@gmail.com)",
 				Transport: http.DefaultTransport,
 			},
 			Timeout: httpTimeout,
