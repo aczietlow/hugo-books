@@ -23,7 +23,7 @@ func NewClient(httpTimeout time.Duration, cacheTTL time.Duration) Client {
 	return Client{
 		httpClient: http.Client{
 			Transport: &Transport{
-				UserAgent: "HugoBookgit@github.com:aczietlow/hugo-books.gits/0.1 (aczietlow@gmail.com)",
+				UserAgent: "HugoBooks/0.1 (aczietlow@gmail.com)",
 				Transport: http.DefaultTransport,
 			},
 			Timeout: httpTimeout,
@@ -37,12 +37,4 @@ func (t *Transport) RoundTrip(r *http.Request) (*http.Response, error) {
 		r.Header.Set("User-Agent", t.UserAgent)
 	}
 	return t.Transport.RoundTrip(r)
-}
-
-func (c *Client) Get() (resp *http.Response, err error) {
-	authorOID := "FOO"
-	url := baseURL + "/authors/" + authorOID + ".json"
-
-	return c.httpClient.Get(url)
-
 }

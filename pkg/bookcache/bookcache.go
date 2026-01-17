@@ -63,7 +63,7 @@ func (c *Cache) reap() {
 	c.mux.Lock()
 	defer c.mux.Unlock()
 	for key, entry := range c.Entries {
-		if time.Now().Sub(entry.createdAt) > c.ttl {
+		if time.Since(entry.createdAt) > c.ttl {
 			delete(c.Entries, key)
 		}
 	}

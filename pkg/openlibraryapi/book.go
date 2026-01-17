@@ -20,6 +20,7 @@ type book struct {
 	Source      string
 }
 
+// Fetches a book by OpenLibraryID number
 func (c *Client) GetBookById(id string) (book, error) {
 	id = strings.ToUpper(id)
 
