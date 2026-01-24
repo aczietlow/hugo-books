@@ -2,8 +2,11 @@ package main
 
 import (
 	"fmt"
+	"log"
+	"time"
 
 	"github.com/aczietlow/hugo-books/internal/hugo"
+	"github.com/aczietlow/hugo-books/pkg/openlibraryapi"
 )
 
 func main() {
@@ -20,12 +23,12 @@ func main() {
 		}
 	}
 
-	// bookAPI := openlibraryapi.NewClient(5*time.Second, 15*time.Minute)
+	bookAPI := openlibraryapi.NewClient(5*time.Second, 15*time.Minute)
 	// fmt.Printf("fetching %s\n", oid)
-	// b, err := bookAPI.GetBookById("OL26452600M")
-	// if err != nil {
-	// 	log.Fatal(err)
-	// }
-	// fmt.Printf("%v", b)
+	b, err := bookAPI.GetBookById("9780547928210")
+	if err != nil {
+		log.Fatal(err)
+	}
+	fmt.Printf("%v", b)
 
 }

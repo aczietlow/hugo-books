@@ -1,5 +1,10 @@
 package openlibraryapi
 
+import (
+	"fmt"
+	"strings"
+)
+
 // type author struct {
 // 	Name string `json:"personal_name"`
 // }
@@ -15,11 +20,17 @@ type work struct {
 	} `json:"type"`
 	Title       string   `json:"title"`
 	Subjects    []string `json:"subjects"`
-	Description struct {
-		Value string `json:"value"`
-	} `json:"description"`
-	Key    string `json:"key"`
-	Covers []int  `json:"covers"`
+	Description string   `json:"description"`
+	Key         string   `json:"key"`
+	Covers      []int    `json:"covers"`
+}
+
+func (w *work) getWorksId() (string, error) {
+	if strings.Contains(w.Key, "/books/") {
+		return strings.Trim(w.Key, "/books/"), nil
+	}
+	return "", fmt.Errorf("%s not a valid key", w.Key)
+
 }
 
 type editions struct {

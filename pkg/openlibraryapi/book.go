@@ -20,7 +20,7 @@ type book struct {
 	Source      string
 }
 
-// Fetches a book by OpenLibraryID number
+// Fetches a book by OpenLibraryID or ISBN number
 func (c *Client) GetBookById(id string) (book, error) {
 	id = strings.ToUpper(id)
 
@@ -56,8 +56,8 @@ func aggregateLibraryRecord(libraryRecord openLibraryBook) book {
 	}
 
 	// Set description if available
-	if libraryRecord.Work.Description.Value != "" {
-		b.Description = libraryRecord.Work.Description.Value
+	if libraryRecord.Work.Description != "" {
+		b.Description = libraryRecord.Work.Description
 	}
 
 	if libraryRecord.Work.Key != "" {
@@ -106,11 +106,17 @@ func aggregateLibraryRecord(libraryRecord openLibraryBook) book {
 func getBookDetails(openLibraryId string, httpClient *http.Client) (openLibraryBook, error) {
 	libraryRecord := openLibraryBook{}
 
-	w, err := getWorkById(openLibraryId, httpClient)
+	// TODO: add logic to fetch book by isbn OR openlibrary works id
+	w, err := getWorkByIsbn(openLibraryId, httpClient)
 	if err != nil {
 		return openLibraryBook{}, err
 	}
 	libraryRecord.Work = w
+
+	openLibraryId, err = w.getWorksId()
+	if err != nil {
+		return openLibraryBook{}, err
+	}
 
 	e, err := getWorkEditions(openLibraryId, httpClient)
 	if err != nil {
@@ -121,6 +127,30 @@ func getBookDetails(openLibraryId string, httpClient *http.Client) (openLibraryB
 	return libraryRecord, nil
 }
 
+func getWorkByIsbn(id string, httpClient *http.Client) (work, error) {
+	url := baseURL + "/isbn/" + id + ".json"
+	resp, err := httpClient.Get(url)
+	if err != nil {
+		return work{}, err
+	}
+
+	if resp.StatusCode != http.StatusOK {
+		return work{}, fmt.Errorf("Received a %d reponse from the api\n GET %s\n", resp.StatusCode, url)
+	}
+
+	body, err := io.ReadAll(resp.Body)
+	if err != nil {
+		return work{}, err
+	}
+
+	w := work{}
+	if err := json.Unmarshal(body, &w); err != nil {
+		return work{}, err
+	}
+	return w, nil
+}
+
+// works/{{ openLibraryId }}
 func getWorkById(id string, httpClient *http.Client) (work, error) {
 	url := baseURL + "/works/" + id + ".json"
 
@@ -140,7 +170,7 @@ func getWorkById(id string, httpClient *http.Client) (work, error) {
 
 	w := work{}
 	if err := json.Unmarshal(body, &w); err != nil {
-		return work{}, nil
+		return work{}, err
 	}
 	return w, nil
 }
