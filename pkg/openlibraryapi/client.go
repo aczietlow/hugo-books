@@ -7,10 +7,11 @@ import (
 	"github.com/aczietlow/hugo-books/pkg/bookcache"
 )
 
-const baseURL = "https://openlibrary.org"
+const baseUrl = "https://openlibrary.org"
 
 type Client struct {
 	httpClient http.Client
+	baseUrl    string
 	cache      bookcache.Cache
 }
 
@@ -19,7 +20,10 @@ type Transport struct {
 	Transport http.RoundTripper
 }
 
-func NewClient(httpTimeout time.Duration, cacheTTL time.Duration) Client {
+// Creates a new client to be reused for all api requests
+//
+// Sets identifiable UserAgent as requested by openlibrary api docs
+func NewClient(httpTimeout time.Duration, cacheTTL time.Duration, base string) Client {
 	return Client{
 		httpClient: http.Client{
 			Transport: &Transport{
@@ -28,7 +32,8 @@ func NewClient(httpTimeout time.Duration, cacheTTL time.Duration) Client {
 			},
 			Timeout: httpTimeout,
 		},
-		cache: bookcache.NewCacheStorage(cacheTTL),
+		baseUrl: getBaseUrl(base),
+		cache:   bookcache.NewCacheStorage(cacheTTL),
 	}
 }
 
@@ -37,4 +42,11 @@ func (t *Transport) RoundTrip(r *http.Request) (*http.Response, error) {
 		r.Header.Set("User-Agent", t.UserAgent)
 	}
 	return t.Transport.RoundTrip(r)
+}
+
+func getBaseUrl(url string) string {
+	if url != "" {
+		return url
+	}
+	return baseUrl
 }

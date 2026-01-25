@@ -61,7 +61,7 @@ func aggregateLibraryRecord(libraryRecord openLibraryBook) book {
 	}
 
 	if libraryRecord.Work.Key != "" {
-		b.Source = baseURL + libraryRecord.Work.Key
+		b.Source = baseUrl + libraryRecord.Work.Key
 	}
 
 	mappedFields := []string{}
@@ -128,7 +128,7 @@ func getBookDetails(openLibraryId string, httpClient *http.Client) (openLibraryB
 }
 
 func getWorkByIsbn(id string, httpClient *http.Client) (work, error) {
-	url := baseURL + "/isbn/" + id + ".json"
+	url := baseUrl + "/isbn/" + id + ".json"
 	resp, err := httpClient.Get(url)
 	if err != nil {
 		return work{}, err
@@ -152,7 +152,7 @@ func getWorkByIsbn(id string, httpClient *http.Client) (work, error) {
 
 // works/{{ openLibraryId }}
 func getWorkById(id string, httpClient *http.Client) (work, error) {
-	url := baseURL + "/works/" + id + ".json"
+	url := baseUrl + "/works/" + id + ".json"
 
 	resp, err := httpClient.Get(url)
 	if err != nil {
@@ -176,7 +176,7 @@ func getWorkById(id string, httpClient *http.Client) (work, error) {
 }
 
 func getWorkEditions(id string, httpClient *http.Client) (editions, error) {
-	url := baseURL + "/works/" + id + "/editions.json"
+	url := baseUrl + "/works/" + id + "/editions.json"
 	resp, err := httpClient.Get(url)
 	if err != nil {
 		return editions{}, err
@@ -222,7 +222,7 @@ func getWorkEditions(id string, httpClient *http.Client) (editions, error) {
 }
 
 func getAuthorByKey(key string, httpClient *http.Client) (author, error) {
-	url := baseURL + "/" + key + ".json"
+	url := baseUrl + "/" + key + ".json"
 	resp, err := httpClient.Get(url)
 	if err != nil {
 		return author{}, err

@@ -8,7 +8,7 @@ import (
 )
 
 func (c *Client) SearchQuery(query string) ([]bookSolrResults, error) {
-	url := baseURL + "/search.json?q=" + query
+	url := baseUrl + "/search.json?q=" + query
 	url += "&limit=5"
 
 	resp, err := c.httpClient.Get(url)

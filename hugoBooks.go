@@ -23,7 +23,7 @@ func main() {
 		}
 	}
 
-	bookAPI := openlibraryapi.NewClient(5*time.Second, 15*time.Minute)
+	bookAPI := openlibraryapi.NewClient(5*time.Second, 15*time.Minute, "")
 	// fmt.Printf("fetching %s\n", oid)
 	b, err := bookAPI.GetBookById("9780547928210")
 	if err != nil {
