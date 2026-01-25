@@ -9,6 +9,7 @@ import (
 	"strings"
 )
 
+// TODO: what is this struct for?
 type book struct {
 	Title       string
 	Subtitle    string
@@ -47,7 +48,6 @@ func (c *Client) GetBookById(id string) (book, error) {
 
 	b := aggregateLibraryRecord(lr)
 	return b, nil
-
 }
 
 func aggregateLibraryRecord(libraryRecord openLibraryBook) book {
@@ -103,78 +103,39 @@ func aggregateLibraryRecord(libraryRecord openLibraryBook) book {
 	return b
 }
 
-func getBookDetails(openLibraryId string, httpClient *http.Client) (openLibraryBook, error) {
+func getBookDetails(id string, httpClient *http.Client) (openLibraryBook, error) {
 	libraryRecord := openLibraryBook{}
 
-	// TODO: add logic to fetch book by isbn OR openlibrary works id
-	w, err := getWorkByIsbn(openLibraryId, httpClient)
+	e, err := getEdition(id, httpClient)
 	if err != nil {
 		return openLibraryBook{}, err
 	}
+
+	libraryRecord.Edition = e
+
+	olWorksId, err := e.getWorksId()
+	if err != nil {
+		return openLibraryBook{}, err
+	}
+
+	w, err := getWorkByOlId(olWorksId, httpClient)
+	if err != nil {
+		return openLibraryBook{}, err
+	}
+
 	libraryRecord.Work = w
 
-	openLibraryId, err = w.getWorksId()
+	allEditions, err := getWorkEditions(olWorksId, httpClient)
 	if err != nil {
 		return openLibraryBook{}, err
 	}
-
-	e, err := getWorkEditions(openLibraryId, httpClient)
-	if err != nil {
-		return openLibraryBook{}, err
-	}
-	libraryRecord.Editions = e
+	libraryRecord.Editions = allEditions
 
 	return libraryRecord, nil
 }
 
-func getWorkByIsbn(id string, httpClient *http.Client) (work, error) {
-	url := baseUrl + "/isbn/" + id + ".json"
-	resp, err := httpClient.Get(url)
-	if err != nil {
-		return work{}, err
-	}
-
-	if resp.StatusCode != http.StatusOK {
-		return work{}, fmt.Errorf("Received a %d reponse from the api\n GET %s\n", resp.StatusCode, url)
-	}
-
-	body, err := io.ReadAll(resp.Body)
-	if err != nil {
-		return work{}, err
-	}
-
-	w := work{}
-	if err := json.Unmarshal(body, &w); err != nil {
-		return work{}, err
-	}
-	return w, nil
-}
-
-// works/{{ openLibraryId }}
-func getWorkById(id string, httpClient *http.Client) (work, error) {
-	url := baseUrl + "/works/" + id + ".json"
-
-	resp, err := httpClient.Get(url)
-	if err != nil {
-		return work{}, err
-	}
-
-	if resp.StatusCode != http.StatusOK {
-		return work{}, fmt.Errorf("received a %d reponse from the api\n", resp.StatusCode)
-	}
-
-	body, err := io.ReadAll(resp.Body)
-	if err != nil {
-		return work{}, err
-	}
-
-	w := work{}
-	if err := json.Unmarshal(body, &w); err != nil {
-		return work{}, err
-	}
-	return w, nil
-}
-
+// Gets all available editions for a work.
+// Uses openlibrary work id
 func getWorkEditions(id string, httpClient *http.Client) (editions, error) {
 	url := baseUrl + "/works/" + id + "/editions.json"
 	resp, err := httpClient.Get(url)
