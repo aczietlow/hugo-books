@@ -14,25 +14,19 @@ type edition struct {
 	Type struct {
 		Key string `json:"key"`
 	} `json:"type"`
-	AuthorKeys []struct {
-		Key string `json:"key"`
-	} `json:"authors"`
-	Works []struct {
+	Series []string `json:"series,omitempty"`
+	Works  []struct {
 		Key string `json:"key"`
 	} `json:"works"`
+	// Do I need lang on editions?
 	Languages []struct {
 		Key string `json:"key"`
 	} `json:"languages"`
-	Authors     []string
 	PublishDate string   `json:"publish_date"`
 	Publishers  []string `json:"publishers"`
-	Subjects    []string `json:"subjects,omitempty"`
 	Title       string   `json:"title"`
-	Series      []string `json:"series,omitempty"`
 	Subtitle    string   `json:"subtitle"`
-	FullTitle   string   `json:"full_title,omitempty"`
 	Key         string   `json:"key"`
-	Covers      []int    `json:"covers,omitempty"`
 	Isbn13      []string `json:"isbn_13"`
 	Isbn10      []string `json:"isbn_10"`
 }
@@ -44,4 +38,11 @@ func (e *edition) getWorksId() (string, error) {
 		}
 	}
 	return "", fmt.Errorf("Could not find a valid work id")
+}
+
+func (e *edition) getEditionId() (string, error) {
+	if strings.Contains(e.Key, "/books/") {
+		return strings.Trim(e.Key, "/books/"), nil
+	}
+	return "", fmt.Errorf("Could not find a valid edition id")
 }

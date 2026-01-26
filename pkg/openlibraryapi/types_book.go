@@ -8,6 +8,7 @@ type openLibraryBook struct {
 	Work     work
 	Editions editions
 	Edition  edition
+	Authors  []author
 }
 
 // Book object we want to ship back to the client
@@ -16,13 +17,14 @@ type book struct {
 	Subtitle      string
 	Authors       []string
 	Description   string
-	ISBN          string
+	ISBN10        string
+	ISBN13        string
 	Genre         []string
 	Cover         string
 	Source        string
 	Series        string
 	SeriesIndex   int
-	PublishedYear int
-	Publisher     string
+	PublishedDate string
+	Publishers    string
 	externalIds   map[string]string
 }

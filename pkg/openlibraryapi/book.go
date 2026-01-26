@@ -4,8 +4,8 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
+	"log"
 	"net/http"
-	"strconv"
 	"strings"
 )
 
@@ -40,7 +40,8 @@ func (c *Client) GetBookById(id string) (book, error) {
 
 func aggregateLibraryRecord(libraryRecord openLibraryBook) book {
 	b := book{
-		Title: libraryRecord.Work.Title,
+		Title:  libraryRecord.Work.Title,
+		Source: "openlibrary",
 	}
 
 	// Set description if available
@@ -48,45 +49,83 @@ func aggregateLibraryRecord(libraryRecord openLibraryBook) book {
 		b.Description = libraryRecord.Work.Description
 	}
 
-	if libraryRecord.Work.Key != "" {
-		b.Source = baseUrl + libraryRecord.Work.Key
+	if libraryRecord.Edition.Subtitle != "" {
+		b.Subtitle = libraryRecord.Edition.Subtitle
 	}
 
-	mappedFields := []string{}
-
-	// Loop through each edition looking for the data to populate a whole book object.
-	for _, edition := range libraryRecord.Editions.Entries {
-		if b.Subtitle == "" && edition.Subtitle != "" {
-			b.Subtitle = edition.Subtitle
-			mappedFields = append(mappedFields, "Subtitle")
-		}
-
-		if b.ISBN == "" && len(edition.Isbn13) > 0 && edition.Isbn13[0] != "" {
-			// Assume we'll only ever want a single ISBN number
-			b.ISBN = edition.Isbn13[0]
-			mappedFields = append(mappedFields, "ISBN")
-		}
-
-		if len(b.Genre) <= 0 && len(edition.Subjects) > 0 {
-			b.Genre = edition.Subjects
-			mappedFields = append(mappedFields, "Genre")
-		}
-
-		if b.Cover == "" && len(edition.Covers) > 0 {
-			b.Cover = "https://covers.openlibrary.org/b/id/" + strconv.Itoa(edition.Covers[0]) + ".jpg"
-			mappedFields = append(mappedFields, "Cover")
-		}
-
-		if len(b.Authors) <= 0 && len(edition.Authors) > 0 {
-			b.Authors = edition.Authors
-			mappedFields = append(mappedFields, "Authors")
-		}
-
-		// Stop iterating throgh editions if we have all the data required.
-		if len(mappedFields) == 5 {
-			break
-		}
+	if libraryRecord.Edition.Isbn10[0] != "" {
+		b.ISBN10 = libraryRecord.Edition.Isbn10[0]
 	}
+
+	if libraryRecord.Edition.Isbn13[0] != "" {
+		b.ISBN13 = libraryRecord.Edition.Isbn13[0]
+	}
+
+	if len(libraryRecord.Work.Subjects) > 0 {
+		b.Genre = libraryRecord.Work.Subjects[0:5]
+	}
+
+	if len(libraryRecord.Edition.Series) > 0 {
+		b.Series = libraryRecord.Edition.Series[0]
+	}
+
+	if libraryRecord.Work.FirstPublishDate != "" {
+		b.PublishedDate = libraryRecord.Work.FirstPublishDate
+	}
+
+	if len(libraryRecord.Edition.Publishers) > 0 {
+		b.Publishers = strings.Join(libraryRecord.Edition.Publishers, ",")
+	}
+
+	wId, err := libraryRecord.Work.getWorksId()
+	if err != nil {
+		log.Fatalf("Failed fetching workd id: %v\n", err)
+	}
+	b.externalIds = map[string]string{
+		"openlibraryWork": wId,
+	}
+
+	// TODO: deal with these later?
+	// Authors:       []string{},
+	// Cover:         "",
+	// SeriesIndex:   0,
+
+	// TODO: Figure out if we want to start with works, then find editions, or start from editions first.
+
+	// // Loop through each edition looking for the data to populate a whole book object.
+	// mappedFields := []string{}
+	// for _, edition := range libraryRecord.Editions.Entries {
+	// 	if b.Subtitle == "" && edition.Subtitle != "" {
+	// 		b.Subtitle = edition.Subtitle
+	// 		mappedFields = append(mappedFields, "Subtitle")
+	// 	}
+	//
+	// 	if b.ISBN == "" && len(edition.Isbn13) > 0 && edition.Isbn13[0] != "" {
+	// 		// Assume we'll only ever want a single ISBN number
+	// 		b.ISBN = edition.Isbn13[0]
+	// 		mappedFields = append(mappedFields, "ISBN")
+	// 	}
+	//
+	// 	if len(b.Genre) <= 0 && len(edition.Subjects) > 0 {
+	// 		b.Genre = edition.Subjects
+	// 		mappedFields = append(mappedFields, "Genre")
+	// 	}
+	//
+	// 	if b.Cover == "" && len(edition.Covers) > 0 {
+	// 		b.Cover = "https://covers.openlibrary.org/b/id/" + strconv.Itoa(edition.Covers[0]) + ".jpg"
+	// 		mappedFields = append(mappedFields, "Cover")
+	// 	}
+	//
+	// 	if len(b.Authors) <= 0 && len(edition.Authors) > 0 {
+	// 		b.Authors = edition.Authors
+	// 		mappedFields = append(mappedFields, "Authors")
+	// 	}
+	//
+	// 	// Stop iterating through editions if we have all the data required.
+	// 	if len(mappedFields) == 5 {
+	// 		break
+	// 	}
+	// }
 
 	return b
 }
@@ -152,26 +191,26 @@ func getWorkEditions(id string, httpClient *http.Client) (editions, error) {
 		Entries: []edition{},
 	}
 
-	for _, edition := range e.Entries {
-		if len(edition.Languages) > 0 && edition.Languages[0].Key == "/languages/eng" {
-			for _, author := range edition.AuthorKeys {
-				a, err := getAuthorByKey(author.Key, httpClient)
-				if err != nil {
-					return editions{}, err
-				}
-				edition.Authors = append(edition.Authors, a.Name)
-
-			}
-			e2.Entries = append(e2.Entries, edition)
-			e2.Size++
-		}
-	}
+	// for _, edition := range e.Entries {
+	// 	if len(edition.Languages) > 0 && edition.Languages[0].Key == "/languages/eng" {
+	// 		for _, author := range edition.AuthorKeys {
+	// 			a, err := getAuthorByKey(author.Key, httpClient)
+	// 			if err != nil {
+	// 				return editions{}, err
+	// 			}
+	// 			edition.Authors = append(edition.Authors, a.Name)
+	//
+	// 		}
+	// 		e2.Entries = append(e2.Entries, edition)
+	// 		e2.Size++
+	// 	}
+	// }
 
 	return e2, nil
 }
 
-func getAuthorByKey(key string, httpClient *http.Client) (author, error) {
-	url := baseUrl + "/" + key + ".json"
+func getAuthorById(id string, httpClient *http.Client) (author, error) {
+	url := baseUrl + "/authors/" + id + ".json"
 	resp, err := httpClient.Get(url)
 	if err != nil {
 		return author{}, err
