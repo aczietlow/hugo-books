@@ -9,18 +9,6 @@ import (
 	"strings"
 )
 
-// TODO: what is this struct for?
-type book struct {
-	Title       string
-	Subtitle    string
-	Authors     []string
-	Description string
-	ISBN        string
-	Genre       []string
-	Cover       string
-	Source      string
-}
-
 // Fetches a book by OpenLibraryID or ISBN number
 func (c *Client) GetBookById(id string) (book, error) {
 	id = strings.ToUpper(id)

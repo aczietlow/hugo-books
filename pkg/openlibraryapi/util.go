@@ -18,7 +18,7 @@ const (
 	isbn13
 )
 
-func prettyPrint(data any) {
+func PrettyPrint(data any) {
 	encodedData, err := json.MarshalIndent(data, "", "  ")
 	if err != nil {
 		log.Fatal("failed to pretty print map")
