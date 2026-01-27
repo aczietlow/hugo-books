@@ -61,7 +61,7 @@ func aggregateLibraryRecord(libraryRecord openLibraryBook) book {
 		b.ISBN13 = libraryRecord.Edition.Isbn13[0]
 	}
 
-	if len(libraryRecord.Work.Subjects) > 0 {
+	if len(libraryRecord.Work.Subjects) > 5 {
 		b.Genre = libraryRecord.Work.Subjects[0:5]
 	}
 
@@ -77,16 +77,20 @@ func aggregateLibraryRecord(libraryRecord openLibraryBook) book {
 		b.Publishers = strings.Join(libraryRecord.Edition.Publishers, ",")
 	}
 
+	for _, author := range libraryRecord.Authors {
+		b.Authors = append(b.Authors, author.Name)
+	}
+
 	wId, err := libraryRecord.Work.getWorksId()
 	if err != nil {
 		log.Fatalf("Failed fetching workd id: %v\n", err)
 	}
+
 	b.externalIds = map[string]string{
 		"openlibraryWork": wId,
 	}
 
 	// TODO: deal with these later?
-	// Authors:       []string{},
 	// Cover:         "",
 	// SeriesIndex:   0,
 
@@ -158,6 +162,19 @@ func getBookDetails(id string, httpClient *http.Client) (openLibraryBook, error)
 	}
 	libraryRecord.Editions = allEditions
 
+	olAuthorIds, err := w.getAuthorIds()
+	if err != nil {
+		return openLibraryBook{}, err
+	}
+
+	for _, authorId := range olAuthorIds {
+		author, err := getAuthorById(authorId, httpClient)
+		if err != nil {
+			return openLibraryBook{}, err
+		}
+		libraryRecord.Authors = append(libraryRecord.Authors, author)
+	}
+
 	return libraryRecord, nil
 }
 
@@ -227,7 +244,7 @@ func getAuthorById(id string, httpClient *http.Client) (author, error) {
 
 	a := author{}
 	if err := json.Unmarshal(body, &a); err != nil {
-		return author{}, nil
+		return author{}, err
 	}
 
 	return a, nil

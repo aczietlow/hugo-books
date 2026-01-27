@@ -13,9 +13,11 @@ type work struct {
 	Description string `json:"description"`
 	Key         string `json:"key"`
 	// "small": "https://covers.openlibrary.org/b/id/123-S.jpg",
-	Covers     []int `json:"covers"`
-	AuthorKeys []struct {
-		Key string `json:"key"`
+	Covers  []int `json:"covers"`
+	Authors []struct {
+		Author struct {
+			Key string `json:"key"`
+		} `json:"author"`
 	} `json:"authors"`
 	Subjects         []string `json:"subjects,omitempty"`
 	FirstPublishDate string   `json:"first_publish_date"`
@@ -29,12 +31,12 @@ func (w *work) getWorksId() (string, error) {
 }
 
 // Finds and returns all open library author ids as part of a work
-func (w *work) getAuthorId() ([]string, error) {
+func (w *work) getAuthorIds() ([]string, error) {
 	ids := []string{}
 
-	for _, aKey := range w.AuthorKeys {
-		if strings.Contains(aKey.Key, "/authors/") {
-			ids = append(ids, strings.Trim(aKey.Key, "/authors/"))
+	for _, author := range w.Authors {
+		if strings.Contains(author.Author.Key, "/authors/") {
+			ids = append(ids, strings.Trim(author.Author.Key, "/authors/"))
 		}
 	}
 
