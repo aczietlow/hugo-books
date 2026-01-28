@@ -6,6 +6,7 @@ type config struct {
 	hugoPath   string
 	dataDir    string
 	contentDir string
+	imageDir   string
 }
 
 type Hugo struct {
@@ -18,6 +19,7 @@ func NewHugo(fullPath string) Hugo {
 			hugoPath:   fullPath,
 			dataDir:    path.Join(fullPath, "data"),
 			contentDir: path.Join(fullPath, "content"),
+			imageDir:   path.Join(fullPath, "static", "images", "books"),
 		},
 	}
 }

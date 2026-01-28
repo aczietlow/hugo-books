@@ -20,7 +20,7 @@ type book struct {
 	ISBN10        string
 	ISBN13        string
 	Genre         []string
-	Cover         string
+	CoverUrl      string
 	Source        string
 	Series        string
 	SeriesIndex   int

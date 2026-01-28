@@ -18,7 +18,7 @@ type edition struct {
 	Works  []struct {
 		Key string `json:"key"`
 	} `json:"works"`
-	// Do I need lang on editions?
+	//TODO: Do I need lang on editions?
 	Languages []struct {
 		Key string `json:"key"`
 	} `json:"languages"`

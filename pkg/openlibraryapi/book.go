@@ -3,9 +3,9 @@ package openlibraryapi
 import (
 	"encoding/json"
 	"fmt"
-	"io"
 	"log"
 	"net/http"
+	"strconv"
 	"strings"
 )
 
@@ -90,9 +90,9 @@ func aggregateLibraryRecord(libraryRecord openLibraryBook) book {
 		"openlibraryWork": wId,
 	}
 
-	// TODO: deal with these later?
-	// Cover:         "",
-	// SeriesIndex:   0,
+	if len(libraryRecord.Work.Covers) > 1 {
+		b.CoverUrl = buildCoverImageUrl(libraryRecord.Work.Covers[0])
+	}
 
 	// TODO: Figure out if we want to start with works, then find editions, or start from editions first.
 
@@ -178,74 +178,7 @@ func getBookDetails(id string, httpClient *http.Client) (openLibraryBook, error)
 	return libraryRecord, nil
 }
 
-// Gets all available editions for a work.
-// Uses openlibrary work id
-func getWorkEditions(id string, httpClient *http.Client) (editions, error) {
-	url := baseUrl + "/works/" + id + "/editions.json"
-	resp, err := httpClient.Get(url)
-	if err != nil {
-		return editions{}, err
-	}
-
-	if resp.StatusCode != http.StatusOK {
-		return editions{}, fmt.Errorf("received a %d reponse from the api\n", resp.StatusCode)
-	}
-
-	body, err := io.ReadAll(resp.Body)
-	if err != nil {
-		return editions{}, err
-	}
-
-	e := editions{}
-	if err := json.Unmarshal(body, &e); err != nil {
-		return editions{}, err
-	}
-
-	// Only return english editions
-	// TODO: Reslice existing slice to reduce memory footprint
-	e2 := editions{
-		Size:    0,
-		Entries: []edition{},
-	}
-
-	// for _, edition := range e.Entries {
-	// 	if len(edition.Languages) > 0 && edition.Languages[0].Key == "/languages/eng" {
-	// 		for _, author := range edition.AuthorKeys {
-	// 			a, err := getAuthorByKey(author.Key, httpClient)
-	// 			if err != nil {
-	// 				return editions{}, err
-	// 			}
-	// 			edition.Authors = append(edition.Authors, a.Name)
-	//
-	// 		}
-	// 		e2.Entries = append(e2.Entries, edition)
-	// 		e2.Size++
-	// 	}
-	// }
-
-	return e2, nil
-}
-
-func getAuthorById(id string, httpClient *http.Client) (author, error) {
-	url := baseUrl + "/authors/" + id + ".json"
-	resp, err := httpClient.Get(url)
-	if err != nil {
-		return author{}, err
-	}
-
-	if resp.StatusCode != http.StatusOK {
-		return author{}, fmt.Errorf("received a %d reponse from the api\n", resp.StatusCode)
-	}
-
-	body, err := io.ReadAll(resp.Body)
-	if err != nil {
-		return author{}, err
-	}
-
-	a := author{}
-	if err := json.Unmarshal(body, &a); err != nil {
-		return author{}, err
-	}
-
-	return a, nil
+// Takes the coverimageId and returns the url for the full sized cover image
+func buildCoverImageUrl(coverId int) string {
+	return fmt.Sprintf("https://covers.openlibrary.org/b/id/%s.jpg", strconv.Itoa(coverId))
 }

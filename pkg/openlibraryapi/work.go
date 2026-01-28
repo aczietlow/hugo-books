@@ -29,6 +29,7 @@ func GetWork(id string, httpClient *http.Client) (work, error) {
 	return w, nil
 }
 
+// Fetches open library work by open library work id.
 // works/{{ openLibraryId }}
 func getWorkByOlId(id string, httpClient *http.Client) (work, error) {
 	url := baseUrl + "/works/" + id + ".json"

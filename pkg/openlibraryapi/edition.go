@@ -82,3 +82,51 @@ func getEditionByIsbn(id string, httpClient *http.Client) (edition, error) {
 	}
 	return e, nil
 }
+
+// Gets all available editions for a work.
+// Uses openlibrary work id
+func getWorkEditions(id string, httpClient *http.Client) (editions, error) {
+	url := baseUrl + "/works/" + id + "/editions.json"
+	resp, err := httpClient.Get(url)
+	if err != nil {
+		return editions{}, err
+	}
+
+	if resp.StatusCode != http.StatusOK {
+		return editions{}, fmt.Errorf("received a %d reponse from the api\n", resp.StatusCode)
+	}
+
+	body, err := io.ReadAll(resp.Body)
+	if err != nil {
+		return editions{}, err
+	}
+
+	e := editions{}
+	if err := json.Unmarshal(body, &e); err != nil {
+		return editions{}, err
+	}
+
+	// Only return english editions
+	// TODO: Reslice existing slice to reduce memory footprint
+	e2 := editions{
+		Size:    0,
+		Entries: []edition{},
+	}
+
+	// for _, edition := range e.Entries {
+	// 	if len(edition.Languages) > 0 && edition.Languages[0].Key == "/languages/eng" {
+	// 		for _, author := range edition.AuthorKeys {
+	// 			a, err := getAuthorByKey(author.Key, httpClient)
+	// 			if err != nil {
+	// 				return editions{}, err
+	// 			}
+	// 			edition.Authors = append(edition.Authors, a.Name)
+	//
+	// 		}
+	// 		e2.Entries = append(e2.Entries, edition)
+	// 		e2.Size++
+	// 	}
+	// }
+
+	return e2, nil
+}
