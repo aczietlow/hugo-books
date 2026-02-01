@@ -15,6 +15,7 @@ func (c *Client) FetchCoverById(id int) error {
 	if err != nil {
 		return err
 	}
+	defer resp.Body.Close()
 	if resp.StatusCode != http.StatusOK {
 		return fmt.Errorf("Received a %d reponse from the api\n GET %s\n", resp.StatusCode, url)
 	}

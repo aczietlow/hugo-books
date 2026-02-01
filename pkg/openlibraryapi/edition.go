@@ -42,7 +42,7 @@ func getEditionByOlId(id string, httpClient *http.Client) (edition, error) {
 	if err != nil {
 		return edition{}, err
 	}
-
+	defer resp.Body.Close()
 	if resp.StatusCode != http.StatusOK {
 		return edition{}, fmt.Errorf("received a %d reponse from the api\n", resp.StatusCode)
 	}
@@ -66,6 +66,7 @@ func getEditionByIsbn(id string, httpClient *http.Client) (edition, error) {
 	if err != nil {
 		return edition{}, err
 	}
+	defer resp.Body.Close()
 
 	if resp.StatusCode != http.StatusOK {
 		return edition{}, fmt.Errorf("Received a %d reponse from the api\n GET %s\n", resp.StatusCode, url)
@@ -91,6 +92,7 @@ func getWorkEditions(id string, httpClient *http.Client) (editions, error) {
 	if err != nil {
 		return editions{}, err
 	}
+	defer resp.Body.Close()
 
 	if resp.StatusCode != http.StatusOK {
 		return editions{}, fmt.Errorf("received a %d reponse from the api\n", resp.StatusCode)

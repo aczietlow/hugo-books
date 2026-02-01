@@ -38,6 +38,7 @@ func getWorkByOlId(id string, httpClient *http.Client) (work, error) {
 	if err != nil {
 		return work{}, err
 	}
+	defer resp.Body.Close()
 
 	if resp.StatusCode != http.StatusOK {
 		return work{}, fmt.Errorf("received a %d reponse from the api\n", resp.StatusCode)

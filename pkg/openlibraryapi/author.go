@@ -14,6 +14,7 @@ func getAuthorById(id string, httpClient *http.Client) (author, error) {
 	if err != nil {
 		return author{}, err
 	}
+	defer resp.Body.Close()
 
 	if resp.StatusCode != http.StatusOK {
 		return author{}, fmt.Errorf("received a %d reponse from the api\n", resp.StatusCode)

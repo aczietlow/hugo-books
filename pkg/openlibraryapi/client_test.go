@@ -48,6 +48,7 @@ openLibrary:
 			if err != nil {
 				t.Logf("Error when client made request to server: %v\n", err)
 			}
+			defer resp.Body.Close()
 
 			if resp.StatusCode != http.StatusOK {
 				t.Logf("Received a %d reponse from the api\n", resp.StatusCode)
