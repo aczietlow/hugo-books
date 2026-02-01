@@ -1,8 +1,10 @@
 package hugo
 
-import "path"
+import (
+	"github.com/aczietlow/hugo-books/internal/config"
+)
 
-type config struct {
+type configuration struct {
 	hugoPath   string
 	dataDir    string
 	contentDir string
@@ -10,16 +12,16 @@ type config struct {
 }
 
 type Hugo struct {
-	Config config
+	Config configuration
 }
 
-func NewHugo(fullPath string) Hugo {
+func NewHugo(conf *config.Config) Hugo {
 	return Hugo{
-		Config: config{
-			hugoPath:   fullPath,
-			dataDir:    path.Join(fullPath, "data"),
-			contentDir: path.Join(fullPath, "content"),
-			imageDir:   path.Join(fullPath, "static", "images", "books"),
+		Config: configuration{
+			hugoPath:   conf.Hugo.BasePath,
+			dataDir:    conf.Hugo.DataDir,
+			contentDir: conf.Hugo.ContentDir,
+			imageDir:   conf.Hugo.ImageDir,
 		},
 	}
 }

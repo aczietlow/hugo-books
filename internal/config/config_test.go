@@ -18,7 +18,9 @@ hugo:
   imageDir: "static/images/books"
 openLibrary:
   httpTimeout: 10
-  cacheTTL: 15`),
+  cacheTTL: 15
+  userAgent: "HugoBooks/0.1 (aczietlow@gmail.com)"
+  baseUrl: ""`),
 		},
 	}
 
@@ -43,6 +45,8 @@ openLibrary:
 				OpenLibrary: openLibraryConfig{
 					HTTPTimeout: 10,
 					CacheTTL:    15,
+					UserAgent:   "HugoBooks/0.1 (aczietlow@gmail.com)",
+					BaseUrl:     "",
 				},
 			},
 			wantErr: false,
@@ -51,7 +55,7 @@ openLibrary:
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			conf, gotErr := loadConfig(tt.fsys, tt.name)
+			conf, gotErr := loadConfigFromFile(tt.fsys, tt.name)
 			if gotErr != nil {
 				if !tt.wantErr {
 					t.Errorf("loadConfig() failed: %v", gotErr)

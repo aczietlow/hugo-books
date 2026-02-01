@@ -21,15 +21,17 @@ type hugoConfig struct {
 }
 
 type openLibraryConfig struct {
-	HTTPTimeout int `yaml:"httpTimeout"`
-	CacheTTL    int `yaml:"cacheTTL"`
+	HTTPTimeout int    `yaml:"httpTimeout"`
+	CacheTTL    int    `yaml:"cacheTTL"`
+	UserAgent   string `yaml:"userAgent"`
+	BaseUrl     string `yaml:"baseUrl"`
 }
 
 func LoadConfig(filepath string) (*Config, error) {
-	return loadConfig(os.DirFS("."), filepath)
+	return loadConfigFromFile(os.DirFS("."), filepath)
 }
 
-func loadConfig(fsys fs.FS, name string) (*Config, error) {
+func loadConfigFromFile(fsys fs.FS, name string) (*Config, error) {
 	data, err := fs.ReadFile(fsys, name)
 	if err != nil {
 		return nil, err
@@ -41,4 +43,12 @@ func loadConfig(fsys fs.FS, name string) (*Config, error) {
 		return nil, err
 	}
 	return &c, nil
+}
+
+func LoadConfigFromBytes(b []byte) (*Config, error) {
+	var conf Config
+	if err := yaml.Unmarshal(b, &conf); err != nil {
+		return nil, err
+	}
+	return &conf, nil
 }

@@ -4,6 +4,7 @@ import (
 	"net/http"
 	"time"
 
+	"github.com/aczietlow/hugo-books/internal/config"
 	"github.com/aczietlow/hugo-books/pkg/bookcache"
 )
 
@@ -23,16 +24,18 @@ type Transport struct {
 // Creates a new client to be reused for all api requests
 //
 // Sets identifiable UserAgent as requested by openlibrary api docs
-func NewClient(httpTimeout time.Duration, cacheTTL time.Duration, base string) Client {
+func NewClient(c *config.Config) Client {
+	httpTimeout := time.Duration(c.OpenLibrary.HTTPTimeout) * time.Second
+	cacheTTL := time.Duration(c.OpenLibrary.CacheTTL) * time.Minute
 	return Client{
 		httpClient: http.Client{
 			Transport: &Transport{
-				UserAgent: "HugoBooks/0.1 (aczietlow@gmail.com)",
+				UserAgent: c.OpenLibrary.UserAgent,
 				Transport: http.DefaultTransport,
 			},
 			Timeout: httpTimeout,
 		},
-		baseUrl: getBaseUrl(base),
+		baseUrl: getBaseUrl(c.OpenLibrary.BaseUrl),
 		cache:   bookcache.NewCacheStorage(cacheTTL),
 	}
 }

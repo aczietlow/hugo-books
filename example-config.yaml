@@ -6,3 +6,5 @@ hugo:
 openLibrary:
   httpTimeout: 10
   cacheTTL: 15
+  userAgent: "HugoBooks/1.0 (aczietlow@zietlow.io)"
+  baseUrl: ""
