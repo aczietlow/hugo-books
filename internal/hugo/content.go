@@ -4,6 +4,7 @@ import (
 	"io/fs"
 	"log"
 	"os"
+	"path"
 	"strings"
 )
 
@@ -19,7 +20,8 @@ type BookContent struct {
 //
 // Returns a slice of Book Hugo Content
 func (h *Hugo) ScanHugoContentForBooks() []BookContent {
-	fileSystem := os.DirFS(h.Config.contentDir)
+	path := path.Join(h.Config.hugoPath, h.Config.contentDir)
+	fileSystem := os.DirFS(path)
 
 	books := []BookContent{}
 	fs.WalkDir(fileSystem, ".", func(path string, d fs.DirEntry, err error) error {

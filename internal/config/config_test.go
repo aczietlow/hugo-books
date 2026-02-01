@@ -9,7 +9,7 @@ import (
 
 func Test_loadConfig(t *testing.T) {
 	fsys := fstest.MapFS{
-		"config.json": &fstest.MapFile{
+		"config.yaml": &fstest.MapFile{
 			Data: []byte(`
 hugo:
   basePath: "/var/www/blog"
@@ -34,7 +34,7 @@ openLibrary:
 		{
 			testName: "Config loads correctly from file",
 			fsys:     fsys,
-			name:     "config.json",
+			name:     "config.yaml",
 			want: &Config{
 				Hugo: hugoConfig{
 					BasePath:   "/var/www/blog",

@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"log"
+	"path"
 
 	"github.com/aczietlow/hugo-books/internal/config"
 	"github.com/aczietlow/hugo-books/internal/hugo"
@@ -10,7 +11,8 @@ import (
 )
 
 func main() {
-	conf, err := config.LoadConfig("config.json")
+	fetchImages := true
+	conf, err := config.LoadConfig("config.yaml")
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -27,6 +29,11 @@ func main() {
 			if err != nil {
 				log.Fatal(err)
 			}
+			if fetchImages && b.CoverId > 0 {
+				imageDir := path.Join(conf.Hugo.BasePath, conf.Hugo.ImageDir)
+				bookAPI.FetchCoverById(b.CoverId, imageDir)
+			}
+
 			collection[book.ISBN] = b
 		}
 	}
@@ -35,7 +42,4 @@ func main() {
 	if err != nil {
 		log.Fatal(err)
 	}
-
-	//https://covers.openlibrary.org/b/id/14627060.jpg
-	bookAPI.FetchCoverById(14627060)
 }

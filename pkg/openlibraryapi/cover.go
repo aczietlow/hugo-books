@@ -5,11 +5,12 @@ import (
 	"io"
 	"net/http"
 	"os"
+	"path"
 	"strconv"
 	"strings"
 )
 
-func (c *Client) FetchCoverById(id int) error {
+func (c *Client) FetchCoverById(id int, name string) error {
 	url := buildCoverImageUrl(id)
 	resp, err := c.httpClient.Get(url)
 	if err != nil {
@@ -21,7 +22,7 @@ func (c *Client) FetchCoverById(id int) error {
 	}
 
 	contentType := resp.Header.Get("content-type")
-	if !strings.Contains(contentType, "image") {
+	if !strings.HasPrefix(contentType, "image") {
 		return fmt.Errorf("Response was not image type")
 	}
 
@@ -30,8 +31,8 @@ func (c *Client) FetchCoverById(id int) error {
 		return err
 	}
 
-	tmp := "/home/aczietlow/Projects/hugo-books/tmp/" + strconv.Itoa(id) + ".jpg"
-	err = os.WriteFile(tmp, data, 0644)
+	imageFile := path.Join(name, strconv.Itoa(id)+".jpg")
+	err = os.WriteFile(imageFile, data, 0644)
 	if err != nil {
 		return err
 	}

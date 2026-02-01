@@ -90,9 +90,8 @@ func aggregateLibraryRecord(libraryRecord openLibraryBook) Book {
 
 	if len(libraryRecord.Work.Covers) > 0 {
 		b.CoverUrl = buildCoverImageUrl(libraryRecord.Work.Covers[0])
+		b.CoverId = libraryRecord.Work.Covers[0]
 	}
-
-	// TODO: Figure out if we want to start with works, then find editions, or start from editions first.
 
 	// // Loop through each edition looking for the data to populate a whole book object.
 	// mappedFields := []string{}

@@ -12,7 +12,7 @@ import (
 type BookCollection map[string]openlibraryapi.Book
 
 func (h *Hugo) LoadBookData() BookCollection {
-	jsonFilePath := path.Join(h.Config.dataDir, "books.json")
+	jsonFilePath := path.Join(h.Config.hugoPath, h.Config.dataDir, "books.json")
 	file, err := os.ReadFile(jsonFilePath)
 	if err != nil {
 		log.Fatal(err)
@@ -26,7 +26,7 @@ func (h *Hugo) LoadBookData() BookCollection {
 }
 
 func (h *Hugo) SaveBookData(collection BookCollection) error {
-	jsonFilePath := path.Join(h.Config.dataDir, "books.json")
+	jsonFilePath := path.Join(h.Config.hugoPath, h.Config.dataDir, "books.json")
 	encodedData, err := json.MarshalIndent(collection, "", "  ")
 	if err != nil {
 		return err

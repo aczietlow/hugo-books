@@ -1,7 +1,6 @@
 package config
 
 import (
-	"fmt"
 	"io/fs"
 	"os"
 
@@ -37,7 +36,6 @@ func loadConfigFromFile(fsys fs.FS, name string) (*Config, error) {
 		return nil, err
 	}
 
-	fmt.Printf("%s", string(data))
 	c := Config{}
 	if err = yaml.Unmarshal(data, &c); err != nil {
 		return nil, err
