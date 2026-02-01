@@ -5,12 +5,12 @@ import "testing"
 func Test_buildCoverImageUrl(t *testing.T) {
 	tests := []struct {
 		name    string
-		coverId string
+		coverId int
 		want    string
 	}{
 		{
 			name:    "build correct cover image url",
-			coverId: "14627060",
+			coverId: 14627060,
 			want:    "https://covers.openlibrary.org/b/id/14627060.jpg",
 		},
 	}

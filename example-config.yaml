@@ -1,0 +1,8 @@
+hugo:
+  basePath: "/var/www/blog"
+  dataDir: "data"
+  contentDir: "content"
+  imageDir: "static/images/books"
+openLibrary:
+  httpTimeout: 10
+  cacheTTL: 15

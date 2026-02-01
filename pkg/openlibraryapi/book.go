@@ -2,10 +2,8 @@ package openlibraryapi
 
 import (
 	"encoding/json"
-	"fmt"
 	"log"
 	"net/http"
-	"strconv"
 	"strings"
 )
 
@@ -151,7 +149,6 @@ func getBookDetails(id string, httpClient *http.Client) (openLibraryBook, error)
 
 	w, err := getWorkByOlId(olWorksId, httpClient)
 	if err != nil {
-
 		log.Printf("attempted to fetch id: %s", olWorksId)
 		return openLibraryBook{}, err
 	}
@@ -178,9 +175,4 @@ func getBookDetails(id string, httpClient *http.Client) (openLibraryBook, error)
 	}
 
 	return libraryRecord, nil
-}
-
-// Takes the coverimageId and returns the url for the full sized cover image
-func buildCoverImageUrl(coverId int) string {
-	return fmt.Sprintf("https://covers.openlibrary.org/b/id/%s.jpg", strconv.Itoa(coverId))
 }
