@@ -14,11 +14,7 @@ type author struct {
 	BirthDate      string   `json:"birth_date"`
 	AlternateNames []string `json:"alternate_names"`
 	Title          string   `json:"title"`
-	Bio            struct {
-		Type  string `json:"type"`
-		Value string `json:"value"`
-	} `json:"bio"`
-	Photos []int `json:"photos"`
+	Photos         []int    `json:"photos"`
 }
 
 func (a *author) getAuthorId() (string, error) {

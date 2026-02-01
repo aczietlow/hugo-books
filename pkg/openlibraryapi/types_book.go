@@ -12,19 +12,20 @@ type openLibraryBook struct {
 }
 
 // Book object we want to ship back to the client
-type book struct {
+type Book struct {
 	Title         string
 	Subtitle      string
+	Series        string
 	Authors       []string
 	Description   string
-	ISBN10        string
-	ISBN13        string
-	Genre         []string
-	CoverUrl      string
-	Source        string
-	Series        string
-	SeriesIndex   int
 	PublishedDate string
 	Publishers    string
-	externalIds   map[string]string
+	CoverId       int
+	CoverUrl      string
+	Genre         []string
+	ISBN10        string
+	ISBN13        string
+	Source        string
+	// SeriesIndex   int
+	externalIds map[string]string
 }

@@ -10,14 +10,14 @@ import (
 )
 
 // Fetches a book by OpenLibraryID or ISBN number
-func (c *Client) GetBookById(id string) (book, error) {
+func (c *Client) GetBookById(id string) (Book, error) {
 	id = strings.ToUpper(id)
 
 	// Attempt to fetch from cache first
 	if cacheRecord, exists := c.cache.Get(id); exists {
 		lr := openLibraryBook{}
 		if err := json.Unmarshal(cacheRecord, &lr); err != nil {
-			return book{}, nil
+			return Book{}, nil
 		}
 		b := aggregateLibraryRecord(lr)
 		return b, nil
@@ -25,12 +25,12 @@ func (c *Client) GetBookById(id string) (book, error) {
 
 	lr, err := getBookDetails(id, &c.httpClient)
 	if err != nil {
-		return book{}, err
+		return Book{}, err
 	}
 
 	cacheRecord, err := json.Marshal(lr)
 	if err != nil {
-		return book{}, err
+		return Book{}, err
 	}
 	c.cache.Add(id, cacheRecord)
 
@@ -38,26 +38,26 @@ func (c *Client) GetBookById(id string) (book, error) {
 	return b, nil
 }
 
-func aggregateLibraryRecord(libraryRecord openLibraryBook) book {
-	b := book{
+func aggregateLibraryRecord(libraryRecord openLibraryBook) Book {
+	b := Book{
 		Title:  libraryRecord.Work.Title,
 		Source: "openlibrary",
 	}
 
 	// Set description if available
-	if libraryRecord.Work.Description != "" {
-		b.Description = libraryRecord.Work.Description
+	if libraryRecord.Work.Description.Value != "" {
+		b.Description = libraryRecord.Work.Description.Value
 	}
 
 	if libraryRecord.Edition.Subtitle != "" {
 		b.Subtitle = libraryRecord.Edition.Subtitle
 	}
 
-	if libraryRecord.Edition.Isbn10[0] != "" {
+	if len(libraryRecord.Edition.Isbn10) > 0 && libraryRecord.Edition.Isbn10[0] != "" {
 		b.ISBN10 = libraryRecord.Edition.Isbn10[0]
 	}
 
-	if libraryRecord.Edition.Isbn13[0] != "" {
+	if len(libraryRecord.Edition.Isbn13) > 0 && libraryRecord.Edition.Isbn13[0] != "" {
 		b.ISBN13 = libraryRecord.Edition.Isbn13[0]
 	}
 
@@ -90,7 +90,7 @@ func aggregateLibraryRecord(libraryRecord openLibraryBook) book {
 		"openlibraryWork": wId,
 	}
 
-	if len(libraryRecord.Work.Covers) > 1 {
+	if len(libraryRecord.Work.Covers) > 0 {
 		b.CoverUrl = buildCoverImageUrl(libraryRecord.Work.Covers[0])
 	}
 
@@ -151,6 +151,8 @@ func getBookDetails(id string, httpClient *http.Client) (openLibraryBook, error)
 
 	w, err := getWorkByOlId(olWorksId, httpClient)
 	if err != nil {
+
+		log.Printf("attempted to fetch id: %s", olWorksId)
 		return openLibraryBook{}, err
 	}
 

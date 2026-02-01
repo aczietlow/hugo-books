@@ -5,26 +5,11 @@ import (
 	"log"
 	"os"
 	"path"
+
+	"github.com/aczietlow/hugo-books/pkg/openlibraryapi"
 )
 
-type BookCollection map[string]Book
-
-type Book struct {
-	Title         string   `json:"title"`
-	Series        string   `json:"series"`
-	SeriesIndex   int      `json:"series_index"`
-	Authors       []string `json:"authors"`
-	PublishedYear int      `json:"published_year"`
-	Publisher     string   `json:"publisher"`
-	Isbn13        string   `json:"isbn_13"`
-	Cover         string   `json:"cover"`
-	Description   string   `json:"description"`
-	Subjects      []string `json:"subjects"`
-	Source        string   `json:"source"`
-	ExternalIds   struct {
-		Openlibrary string `json:"openlibrary"`
-	} `json:"external_ids"`
-}
+type BookCollection map[string]openlibraryapi.Book
 
 func (h *Hugo) LoadBookData() BookCollection {
 	jsonFilePath := path.Join(h.Config.dataDir, "books.json")
@@ -38,4 +23,18 @@ func (h *Hugo) LoadBookData() BookCollection {
 		log.Fatal(err)
 	}
 	return bd
+}
+
+func (h *Hugo) SaveBookData(collection BookCollection) error {
+	jsonFilePath := path.Join(h.Config.dataDir, "books.json")
+	encodedData, err := json.MarshalIndent(collection, "", "  ")
+	if err != nil {
+		return err
+	}
+
+	err = os.WriteFile(jsonFilePath, encodedData, 0666)
+	if err != nil {
+		return err
+	}
+	return nil
 }

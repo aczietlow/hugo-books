@@ -50,6 +50,7 @@ func getWorkByOlId(id string, httpClient *http.Client) (work, error) {
 
 	w := work{}
 	if err := json.Unmarshal(body, &w); err != nil {
+		PrettyPrint(string(body))
 		return work{}, err
 	}
 	return w, nil
