@@ -10,8 +10,20 @@ import (
 	"strings"
 )
 
-func (c *Client) FetchCoverById(id int, name string) error {
-	url := buildCoverImageUrl(id)
+func (c *Client) FetchCoverById(id string, name string) error {
+	sid, err := strconv.Atoi(id)
+	if err != nil {
+		return err
+	}
+	url := buildCoverImageUrl(sid)
+	imageFile := path.Join(name, id+".jpg")
+
+	// Do nothing if cover image already exists.
+	_, err = os.Stat(imageFile)
+	if os.IsExist(err) {
+		return nil
+	}
+
 	resp, err := c.httpClient.Get(url)
 	if err != nil {
 		return err
@@ -31,7 +43,6 @@ func (c *Client) FetchCoverById(id int, name string) error {
 		return err
 	}
 
-	imageFile := path.Join(name, strconv.Itoa(id)+".jpg")
 	err = os.WriteFile(imageFile, data, 0644)
 	if err != nil {
 		return err

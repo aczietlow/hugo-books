@@ -6,6 +6,9 @@ A simple tool to fetch book data for my hugo blog
 
 Hugo books will scan the content of a hugo site, and look for any content that contains 'isbn' property, `isbn: "12345"`, in the front matter. It then checks for a [data source](https://gohugo.io/content-management/data-sources/) for book data using the isbn number as a unique key. For any books without a corresponding book entry, HugoBooks will query the Open Library api for missing data.
 
+## Open Library 
+
+In the spirit of open source and wanting the Internet to remain an open place, I donated $100 to the Internet Archive for their continued support of Open Library.
 
 ## Level of AI Usage
 

@@ -29,7 +29,7 @@ func main() {
 			if err != nil {
 				log.Fatal(err)
 			}
-			if fetchImages && b.CoverId > 0 {
+			if fetchImages && b.CoverId != "" {
 				imageDir := path.Join(conf.Hugo.BasePath, conf.Hugo.ImageDir)
 				bookAPI.FetchCoverById(b.CoverId, imageDir)
 			}

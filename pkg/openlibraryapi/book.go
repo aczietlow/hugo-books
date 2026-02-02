@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"log"
 	"net/http"
+	"strconv"
 	"strings"
 )
 
@@ -59,8 +60,10 @@ func aggregateLibraryRecord(libraryRecord openLibraryBook) Book {
 		b.ISBN13 = libraryRecord.Edition.Isbn13[0]
 	}
 
-	if len(libraryRecord.Work.Subjects) > 5 {
-		b.Genre = libraryRecord.Work.Subjects[0:5]
+	if len(libraryRecord.Work.Subjects) > 0 {
+		// Limit genre to 5 at most
+		limit := min(len(libraryRecord.Work.Subjects), 5)
+		b.Genre = libraryRecord.Work.Subjects[0:limit]
 	}
 
 	if len(libraryRecord.Edition.Series) > 0 {
@@ -69,6 +72,10 @@ func aggregateLibraryRecord(libraryRecord openLibraryBook) Book {
 
 	if libraryRecord.Work.FirstPublishDate != "" {
 		b.PublishedDate = libraryRecord.Work.FirstPublishDate
+	}
+
+	if libraryRecord.Edition.PublishDate != "" {
+		b.PublishedDate = libraryRecord.Edition.PublishDate
 	}
 
 	if len(libraryRecord.Edition.Publishers) > 0 {
@@ -90,7 +97,7 @@ func aggregateLibraryRecord(libraryRecord openLibraryBook) Book {
 
 	if len(libraryRecord.Work.Covers) > 0 {
 		b.CoverUrl = buildCoverImageUrl(libraryRecord.Work.Covers[0])
-		b.CoverId = libraryRecord.Work.Covers[0]
+		b.CoverId = strconv.Itoa(libraryRecord.Work.Covers[0])
 	}
 
 	// // Loop through each edition looking for the data to populate a whole book object.
