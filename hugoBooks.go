@@ -31,11 +31,31 @@ func main() {
 			}
 			if fetchImages && b.CoverId != "" {
 				imageDir := path.Join(conf.Hugo.BasePath, conf.Hugo.ImageDir)
-				bookAPI.FetchCoverById(b.CoverId, imageDir)
+				err := bookAPI.FetchCoverById(b.CoverId, imageDir)
+				if err != nil {
+					log.Fatal(err)
+				}
+
 			}
 
 			collection[book.ISBN] = b
 		}
+
+		// // Temp trying to figure out file fetching...
+		// b := collection[book.ISBN]
+		// imageDir := path.Join(conf.Hugo.BasePath, conf.Hugo.ImageDir)
+		// imageFile := path.Join(imageDir, b.CoverId+".jpg")
+		//
+		// _, err = os.Stat(imageFile)
+		//
+		// if err != nil && !errors.Is(err, fs.ErrExist) {
+		// 	fmt.Printf("Missing cover image for %s, attempting to fetch: %s\n", b.Title, imageFile)
+		// 	err := bookAPI.FetchCoverById(b.CoverId, imageDir)
+		// 	if err != nil {
+		// 		fmt.Printf("ecountered error  during fetch")
+		// 		log.Fatal(err)
+		// 	}
+		// }
 	}
 
 	err = hugo.SaveBookData(collection)

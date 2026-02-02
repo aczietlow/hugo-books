@@ -1,8 +1,10 @@
 package openlibraryapi
 
 import (
+	"errors"
 	"fmt"
 	"io"
+	"io/fs"
 	"net/http"
 	"os"
 	"path"
@@ -11,6 +13,10 @@ import (
 )
 
 func (c *Client) FetchCoverById(id string, name string) error {
+	// skip if coverId is empty.
+	if id == "" {
+		return nil
+	}
 	sid, err := strconv.Atoi(id)
 	if err != nil {
 		return err
@@ -20,8 +26,10 @@ func (c *Client) FetchCoverById(id string, name string) error {
 
 	// Do nothing if cover image already exists.
 	_, err = os.Stat(imageFile)
-	if os.IsExist(err) {
+	if err == nil {
 		return nil
+	} else if !errors.Is(err, fs.ErrNotExist) {
+		return err
 	}
 
 	resp, err := c.httpClient.Get(url)
