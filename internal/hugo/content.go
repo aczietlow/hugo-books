@@ -6,12 +6,14 @@ import (
 	"os"
 	"path"
 	"strings"
+
+	"github.com/pelletier/go-toml/v2"
 )
 
 type BookContent struct {
 	Path  string
 	Title string
-	ISBN  string
+	Isbn  string
 }
 
 // Walks throgh Hugo Content directory. searching for book conent
@@ -36,16 +38,20 @@ func (h *Hugo) ScanHugoContentForBooks() []BookContent {
 		if err != nil {
 			log.Fatal(err)
 		}
-		bm, err := getFrontMatter(file)
+		fm, err := getFrontMatter(file)
 		if err != nil {
 			log.Fatal(err)
 		}
 
-		if bm.ISBN == "" {
+		if fm.Isbn == "" {
 			return nil
-		} else {
-			bm.Path = path
 		}
+		bm := BookContent{
+			Path:  path,
+			Title: fm.Title,
+			Isbn:  string(fm.Isbn),
+		}
+
 		books = append(books, bm)
 
 		return nil
@@ -54,30 +60,42 @@ func (h *Hugo) ScanHugoContentForBooks() []BookContent {
 	return books
 }
 
+type contentFrontMatter struct {
+	Title string
+	Isbn  Isbn
+}
+
+type Isbn string
+
 // Stupidest parser... in the world
-func getFrontMatter(file []byte) (BookContent, error) {
-	bm := BookContent{}
+func getFrontMatter(file []byte) (contentFrontMatter, error) {
 	content := strings.Split(string(file), "\n")
+
+	// TODO: This currently assumes front matter will Always be toml
+	frontMatter := ""
 	fmMarker := 0
 	for _, l := range content {
-		if l == "+++" {
+		if strings.Contains(l, "+++") {
 			fmMarker++
 			continue
 		}
 
 		if fmMarker == 1 {
-			if strings.HasPrefix(l, "isbn") {
-				start := strings.Index(l, "\"")
-				last := strings.LastIndex(l, "\"")
-				bm.ISBN = l[start+1 : last]
-			}
-			if strings.HasPrefix(l, "title") {
-				start := strings.Index(l, "\"")
-				last := strings.LastIndex(l, "\"")
-				bm.Title = l[start+1 : last]
-			}
+			frontMatter += l + "\n"
 		}
 	}
 
-	return bm, nil
+	var fm contentFrontMatter
+
+	err := toml.Unmarshal([]byte(frontMatter), &fm)
+	if err != nil {
+		return contentFrontMatter{}, err
+	}
+
+	return fm, nil
+}
+
+func (i *Isbn) UnmarshalText(data []byte) error {
+	*i = Isbn(strings.TrimSpace(strings.ReplaceAll(string(data), "-", "")))
+	return nil
 }

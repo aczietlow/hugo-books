@@ -23,9 +23,9 @@ func main() {
 	collection := hugo.LoadBookData()
 
 	for _, book := range hugo.ScanHugoContentForBooks() {
-		if _, exists := collection[book.ISBN]; !exists {
-			fmt.Printf("Fetching details for %s using isbn:%v\n", book.Title, book.ISBN)
-			b, err := bookAPI.GetBookById(book.ISBN)
+		if _, exists := collection[book.Isbn]; !exists {
+			fmt.Printf("Fetching details for %s using isbn:%v\n", book.Title, book.Isbn)
+			b, err := bookAPI.GetBookById(book.Isbn)
 			if err != nil {
 				log.Fatal(err)
 			}
@@ -38,7 +38,7 @@ func main() {
 
 			}
 
-			collection[book.ISBN] = b
+			collection[book.Isbn] = b
 		}
 
 		// // Temp trying to figure out file fetching...
