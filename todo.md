@@ -1,0 +1,4 @@
+- [ ] Make web requests concurrent
+- [ ] limit api usage to 200 requests per minute
+- [ ] better test coverage
+- [ ] use different http client for fetching covers
